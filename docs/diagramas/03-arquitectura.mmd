@@ -1,0 +1,10 @@
+flowchart LR
+    CLI["Cliente<br/>Postman / Swagger UI"] -->|"HTTP + JWT"| SEG
+    subgraph APP["Spring Boot"]
+        SEG["Spring Security<br/>JwtFiltroAutenticacion<br/>401 / 403 personalizados"] --> CTL
+        CTL["Controladores REST<br/>@PreAuthorize + @Valid"] -->|DTOs| SRV
+        SRV["Servicios<br/>reglas de negocio<br/>@Transactional"] --> RPS
+        RPS["Repositorios<br/>Spring Data JPA<br/>@Query personalizadas"] --> MOD["Entidades JPA<br/>Hibernate"]
+        MGE["ManejadorGlobalExcepciones<br/>@RestControllerAdvice"] -.-> CTL
+    end
+    MOD --> BD[("MySQL<br/>biblioteca_db")]

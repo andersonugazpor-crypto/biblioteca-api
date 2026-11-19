@@ -1,0 +1,67 @@
+erDiagram
+    USUARIOS ||--o{ USUARIO_ROLES : tiene
+    ROLES ||--o{ USUARIO_ROLES : "se asigna a"
+    USUARIOS ||--o{ PRESTAMOS : solicita
+    LIBROS ||--o{ PRESTAMOS : "se presta en"
+    LIBROS ||--o{ LIBRO_CATEGORIAS : pertenece
+    CATEGORIAS ||--o{ LIBRO_CATEGORIAS : agrupa
+    USUARIOS ||--o{ REFRESH_TOKENS : posee
+
+    USUARIOS {
+        bigint id PK
+        varchar nombres
+        varchar apellidos
+        varchar email UK
+        varchar codigo_universitario UK
+        varchar password "BCrypt"
+        boolean activo
+        datetime fecha_registro
+    }
+    ROLES {
+        bigint id PK
+        varchar nombre UK "ADMIN, USUARIO"
+        varchar descripcion
+    }
+    USUARIO_ROLES {
+        bigint usuario_id PK,FK
+        bigint rol_id PK,FK
+    }
+    LIBROS {
+        bigint id PK
+        varchar isbn UK
+        varchar titulo
+        varchar autor
+        varchar editorial
+        int anio_publicacion
+        int ejemplares_totales
+        int ejemplares_disponibles
+        boolean activo
+        bigint version "bloqueo optimista"
+    }
+    CATEGORIAS {
+        bigint id PK
+        varchar nombre UK
+        varchar descripcion
+    }
+    LIBRO_CATEGORIAS {
+        bigint libro_id PK,FK
+        bigint categoria_id PK,FK
+    }
+    PRESTAMOS {
+        bigint id PK
+        bigint usuario_id FK
+        bigint libro_id FK
+        date fecha_prestamo
+        date fecha_vencimiento
+        date fecha_devolucion
+        varchar estado "ACTIVO, DEVUELTO"
+        decimal multa
+        varchar observaciones
+    }
+    REFRESH_TOKENS {
+        bigint id PK
+        varchar token UK
+        bigint usuario_id FK
+        timestamp fecha_expiracion
+        boolean revocado
+    }

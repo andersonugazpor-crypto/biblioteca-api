@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    actor C as Cliente (Postman)
+    participant F as JwtFiltroAutenticacion
+    participant A as AuthControlador
+    participant S as AuthServicio
+    participant J as JwtServicio
+    participant API as Controlador protegido
+    C->>A: POST /api/auth/login {email, password}
+    A->>S: login()
+    S->>S: AuthenticationManager valida BCrypt
+    S->>J: generarAccessToken(usuario)
+    S-->>C: 200 {accessToken (30 min), refreshToken (7 días)}
+    C->>F: GET /api/libros  Authorization: Bearer accessToken
+    F->>J: validar firma, emisor y expiración
+    alt token válido y cuenta activa
+        F->>API: SecurityContext con ROLE_ADMIN / ROLE_USUARIO
+        API->>API: reglas por ruta + @PreAuthorize
+        API-->>C: 200 / 403 (rol no autorizado)
+    else token ausente, expirado o alterado
+        F-->>C: 401 JSON con el motivo
+    end
+    C->>A: POST /api/auth/refresh {refreshToken}
+    A->>S: refrescar(): revoca el token usado (rotación)
+    S-->>C: 200 {nuevo accessToken, nuevo refreshToken}
